@@ -339,3 +339,4 @@ focus-extension/
 5. **Icons** — simple placeholder icons for the toolbar.
 
 ---
+
