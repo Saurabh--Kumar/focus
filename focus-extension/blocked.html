@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Focus Barrier</title>
+  <link rel="stylesheet" href="blocked.css">
+</head>
+<body>
+  <div class="container">
+    <h1>🚧 Focus Barrier</h1>
+    <p class="subtitle">You're trying to access a distracting site.</p>
+
+    <div id="target-info" class="target-info"></div>
+
+    <div class="timer-section">
+      <p id="timer-label">Please wait before continuing:</p>
+      <div id="timer" class="timer">00:00</div>
+    </div>
+
+    <div class="reason-section" id="reason-section" style="display: none;">
+      <label for="reason">Why do you need access right now?</label>
+      <textarea id="reason" rows="4" placeholder="Type your reason here (minimum 30 characters)..."></textarea>
+      <p id="char-count" class="char-count">0 / 30 characters</p>
+      <button id="submit-btn" disabled>Continue to Site</button>
+    </div>
+
+    <p id="status" class="status"></p>
+  </div>
+
+  <script src="blocked.js"></script>
+</body>
+</html>
