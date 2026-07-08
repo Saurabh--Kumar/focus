@@ -50,60 +50,70 @@ async function getSettings() {
   return { ...DEFAULT_SETTINGS, ...data };
 }
 
+let isRebuilding = false;
+
 async function rebuildBlockRules() {
-  const settings = await getSettings();
-  const existingRules = await chrome.declarativeNetRequest.getDynamicRules();
-  const existingIds = existingRules.map(r => r.id);
+  if (isRebuilding) return;
+  isRebuilding = true;
+  try {
+    const settings = await getSettings();
+    const existingRules = await chrome.declarativeNetRequest.getDynamicRules();
+    const existingIds = existingRules.map(r => r.id);
 
-  // Deduplicate rules by id (keep last occurrence)
-  const ruleMap = new Map();
+    // Deduplicate rules by id (keep last occurrence)
+    const ruleMap = new Map();
 
-  // Block rules for each site
-  settings.blockedSites.forEach((site, index) => {
-    const domain = site.domain.replace(/^www\./, '');
-    const rule = {
-      id: Math.floor(index + 1),
-      priority: 1,
-      action: {
-        type: 'redirect',
-        redirect: {
-          url: `${chrome.runtime.getURL('blocked.html')}?target=${encodeURIComponent('https://' + domain + '/')}`,
-        },
-      },
-      condition: {
-        urlFilter: `||${domain}`,
-        resourceTypes: ['main_frame'],
-      },
-    };
-    ruleMap.set(rule.id, rule);
-  });
-
-  // Temp allow rules (deduplicated by id)
-  settings.tempAccess.forEach(access => {
-    try {
-      const url = new URL(access.url);
-      const domain = url.hostname.replace(/^www\./, '');
+    // Block rules for each site
+    settings.blockedSites.forEach((site, index) => {
+      const domain = site.domain.replace(/^www\./, '');
       const rule = {
-        id: Math.floor(access.ruleId),
-        priority: 2,
-        action: { type: 'allow' },
+        id: Math.floor(index + 1),
+        priority: 1,
+        action: {
+          type: 'redirect',
+          redirect: {
+            url: `${chrome.runtime.getURL('blocked.html')}?target=${encodeURIComponent('https://' + domain + '/')}`,
+          },
+        },
         condition: {
           urlFilter: `||${domain}`,
           resourceTypes: ['main_frame'],
         },
       };
       ruleMap.set(rule.id, rule);
-    } catch (e) {
-      // Invalid URL, skip
-    }
-  });
+    });
 
-  const finalRules = Array.from(ruleMap.values());
+    // Temp allow rules (deduplicated by id)
+    settings.tempAccess.forEach(access => {
+      try {
+        const url = new URL(access.url);
+        const domain = url.hostname.replace(/^www\./, '');
+        const ruleId = Math.floor(access.ruleId);
+        if (!Number.isInteger(ruleId) || ruleId <= 0) return;
+        const rule = {
+          id: ruleId,
+          priority: 2,
+          action: { type: 'allow' },
+          condition: {
+            urlFilter: `||${domain}`,
+            resourceTypes: ['main_frame'],
+          },
+        };
+        ruleMap.set(rule.id, rule);
+      } catch (e) {
+        // Invalid URL, skip
+      }
+    });
 
-  await chrome.declarativeNetRequest.updateDynamicRules({
-    removeRuleIds: existingIds,
-    addRules: finalRules,
-  });
+    const finalRules = Array.from(ruleMap.values());
+
+    await chrome.declarativeNetRequest.updateDynamicRules({
+      removeRuleIds: existingIds,
+      addRules: finalRules,
+    });
+  } finally {
+    isRebuilding = false;
+  }
 }
 
 async function cleanupExpiredAccess() {
