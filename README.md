@@ -1,4 +1,4 @@
-# Focus Barrier
+# Focus
 
 A browser extension that helps you stay focused by adding a timer barrier before you can access distracting websites during your work hours.
 
