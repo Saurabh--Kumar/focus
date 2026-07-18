@@ -87,6 +87,7 @@ async function init() {
     if (reason.length < MIN_REASON_LENGTH) return;
 
     status.textContent = 'Granting access...';
+    status.classList.remove('error');
     submitBtn.disabled = true;
 
     try {
@@ -103,10 +104,12 @@ async function init() {
         }, 500);
       } else {
         status.textContent = `Error: ${response.error}`;
+        status.classList.add('error');
         submitBtn.disabled = false;
       }
     } catch (err) {
       status.textContent = `Error: ${err.message}`;
+      status.classList.add('error');
       submitBtn.disabled = false;
     }
   });

@@ -129,6 +129,10 @@ h1 {
 .status {
   margin-top: 16px;
   font-size: 0.95rem;
-  color: #e74c3c;
+  color: #27ae60;
   min-height: 24px;
+}
+
+.status.error {
+  color: #e74c3c;
 }
