@@ -2,6 +2,8 @@
 
 A browser extension that helps you stay focused by adding a timer barrier before you can access distracting websites during your work hours.
 
+[![Focus — Demo](https://img.youtube.com/vi/ECuFfQmjLHc/maxresdefault.jpg)](https://www.youtube.com/watch?v=ECuFfQmjLHc)
+
 ## Features
 
 - **Quickly block distracting sites** directly from the popup
